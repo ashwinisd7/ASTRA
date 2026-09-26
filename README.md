@@ -2,7 +2,6 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-19%20passed-brightgreen.svg)]()
-[![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 
 An autonomous AI-driven reconnaissance and vulnerability detection tool engineered to map WordPress attack surfaces, dynamically discover user accounts across 6 enumeration vectors, perform targeted administrative credential verification, and synthesize actionable executive reports.
 
