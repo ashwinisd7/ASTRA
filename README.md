@@ -6,9 +6,6 @@
 
 An autonomous AI-driven reconnaissance and vulnerability detection tool engineered to map WordPress attack surfaces, dynamically discover user accounts across 6 enumeration vectors, perform targeted administrative credential verification, and synthesize actionable executive reports.
 
-<p align="center">
-  <img src="assets/terminal_output.png" alt="Astra WP Recon Terminal Execution" width="820"/>
-</p>
 
 ---
 
