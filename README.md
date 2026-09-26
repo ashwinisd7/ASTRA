@@ -11,11 +11,10 @@ An autonomous AI-driven reconnaissance and vulnerability detection tool engineer
 ## Table of Contents
 1. [Approach and Reasoning](#1-approach-and-reasoning)
 2. [Architecture (Modules, Flow, Agent Design)](#2-architecture-modules-flow-agent-design)
-3. [Example Terminal & JSON Outputs](#3-example-terminal--json-outputs)
-4. [How to Configure and Run the Tool](#4-how-to-configure-and-run-the-tool)
-5. [CLI Options Reference](#5-cli-options-reference)
-6. [How the Tool Was Tested](#6-how-the-tool-was-tested)
-7. [Limitations and Trade-offs](#7-limitations-and-trade-offs)
+3. [How to Configure and Run the Tool](#3-how-to-configure-and-run-the-tool)
+4. [CLI Options Reference](#4-cli-options-reference)
+5. [How to Test the Tool](#5-how-to-test-the-tool)
+6. [Limitations and Trade-offs](#6-limitations-and-trade-offs)
 
 ---
 
@@ -140,7 +139,7 @@ python_agent/
 
 ```powershell
 # 1. Clone/navigate to the project directory
-cd C:\Users\HP\OneDrive\Desktop\Astra\python_agent
+cd C:\Users\HP\OneDrive\Desktop\TEST\ASTRA
 
 # 2. Install dependencies
 pip install -r requirements.txt
@@ -189,7 +188,7 @@ astra-wp-recon -u http://localhost:8081 --json
 ### Configuring AI Keys
 Set your key in `.env`:
 ```env
-API_KEY=AIzaSyYourGeminiApiKeyHere
+API_KEY=Your_Gemini_Api_Key_Here
 MODEL=gemini-3.1-flash-lite
 ```
 Or pass it directly on the command line:
@@ -226,10 +225,51 @@ astra-wp-recon -u http://localhost:8081 --gemini-key "AIzaSy..."
 
 ---
 
-## 5. How the Tool Was Tested
+## 5. How to Test the Tool
 
-### Automated Test Suite (19 Tests)
-The tool is verified using an automated `unittest` test suite covering unit functionality, edge cases, fault tolerance, and full end-to-end integration:
+### Step 1: Environment Variables Configuration (Gemini API Key)
+The AI agent uses **Google Gemini** for intelligent ReAct loop planning and executive security summary synthesis.
+
+Copy the provided example environment configuration:
+```powershell
+cp .env.example .env
+```
+
+Set your Google Gemini API key in `.env`:
+```env
+# Astra WordPress Security Tool Configuration
+TARGET_URL=http://localhost:8081
+REQUEST_TIMEOUT=10
+MAX_AUTHOR_ID=10
+BRUTEFORCE_ENABLED=true
+MAX_BRUTEFORCE_ATTEMPTS=15
+
+# AI Agent Configuration (Google Gemini)
+API_KEY=Your_Gemini_Api_Key_Here
+MODEL=gemini-3.1-flash-lite
+```
+
+> **Note on Zero-Dependency Testing (Offline Mode):** If no API key is provided, or during network failure, the tool automatically engages its built-in deterministic heuristic reasoning engine (`is_offline = True`), allowing full execution without requiring any cloud API key.
+
+### Step 2: Testing with the Local Mock Server
+A dedicated mock WordPress server is bundled with the project to safely test the complete reconnaissance lifecycle against realistic vulnerabilities:
+
+1. **Launch the mock WordPress environment in Terminal 1:**
+   ```powershell
+   python -m astra_recon.mock_server --port 8081
+   ```
+
+2. **Execute the autonomous reconnaissance scan in Terminal 2:**
+   ```powershell
+   # With Gemini AI reasoning active (using .env API_KEY):
+   python -m astra_recon.cli -u http://localhost:8081
+
+   # Or testing the offline heuristic fallback mode:
+   python -m astra_recon.cli -u http://localhost:8081 --no-bruteforce
+   ```
+
+### Step 3: Running the Automated Test Suite (19 Tests)
+The tool is comprehensively verified using an automated `unittest` test suite covering unit functionality, edge cases, fault tolerance, and full end-to-end integration:
 
 ```powershell
 # Run the complete test suite
