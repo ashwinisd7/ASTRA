@@ -193,7 +193,7 @@ MODEL=gemini-3.1-flash-lite
 ```
 Or pass it directly on the command line:
 ```powershell
-astra-wp-recon -u http://localhost:8081 --gemini-key "AIzaSy..."
+astra-wp-recon -u http://localhost:8081 --api-key "AIzaSy..."
 ```
 *(If no API key is supplied, the tool automatically uses its built-in offline Heuristic AI engine).*
 
@@ -212,10 +212,8 @@ astra-wp-recon -u http://localhost:8081 --gemini-key "AIzaSy..."
 | `--max-authors <N>` | | `10` | Maximum author IDs to probe during author archive enumeration (`?author=1..N`). |
 | `--no-exploit-checks` | | `False` | Skip WordPress version, XML-RPC, and sensitive file checks. |
 | `--timeout <SEC>` | | `10` | HTTP request timeout in seconds. |
-| `--gemini-key <KEY>` | | *None* | Google Gemini API key (or set `GOOGLE_GENERATIVE_AI_API_KEY` / `GEMINI_API_KEY` in `.env`). |
-| `--gemini-model <MODEL>` | | `gemini-3.1-flash-lite` | Gemini model identifier. |
-| `--api-key <KEY>` | | *None* | Google Gemini API key (alias for `--gemini-key`). |
-| `--model <MODEL>` | | *None* | AI model identifier (default: `gemini-3.1-flash-lite`). |
+| `--api-key <KEY>` | | *None* | Google Gemini API key (or set `API_KEY` in `.env`). |
+| `--model <MODEL>` | | `gemini-3.1-flash-lite` | Gemini model identifier. |
 | `--output <PATH>` | `-o` | *None* | Custom destination path for structured JSON results. |
 | `--report <PATH>` | `-r` | *None* | Custom destination path for Markdown audit report. |
 | `--json` | | `False` | Output strictly JSON to `stdout` (Section 6.2 spec). |

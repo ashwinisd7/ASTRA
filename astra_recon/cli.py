@@ -63,23 +63,13 @@ from astra_recon.utils.console import ReconConsole
     default=None,
 )
 @click.option(
-    "--gemini-key",
-    help="Google Gemini API key (or set GOOGLE_GENERATIVE_AI_API_KEY). If omitted, uses built-in Heuristic AI Engine.",
-    default=None,
-)
-@click.option(
-    "--gemini-model",
-    help="Gemini model identifier (default: gemini-3.1-flash-lite).",
-    default=None,
-)
-@click.option(
     "--api-key",
-    help="Google Gemini API key (alias for --gemini-key).",
+    help="Google Gemini API key (or set API_KEY in .env). If omitted, uses built-in Heuristic AI Engine.",
     default=None,
 )
 @click.option(
     "--model",
-    help="AI model identifier (default: gemini-3.1-flash-lite).",
+    help="Gemini model identifier (default: gemini-3.1-flash-lite).",
     default=None,
 )
 @click.option(
@@ -130,8 +120,6 @@ def main(
     no_bruteforce,
     wordlist,
     max_bruteforce,
-    gemini_key,
-    gemini_model,
     api_key,
     model,
     output_file,
@@ -156,8 +144,8 @@ def main(
             no_bruteforce=no_bruteforce,
             wordlist=wordlist,
             max_bruteforce=max_bruteforce,
-            api_key=api_key or gemini_key,
-            model=model or gemini_model,
+            api_key=api_key,
+            model=model,
             no_exploit_checks=no_exploit_checks,
             verbose=verbose,
         )

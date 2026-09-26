@@ -55,7 +55,6 @@ def build_scan_config(
     max_bruteforce: Optional[int] = None,
     api_key: Optional[str] = None,
     model: Optional[str] = None,
-    base_url: Optional[str] = None,
     no_exploit_checks: bool = False,
     verbose: bool = False,
     **kwargs,
@@ -130,34 +129,18 @@ def build_scan_config(
         or os.getenv("WORDLIST_PATH")
     )
 
-    # 6. AI options (Single API Key & Model)
+    # 6. AI options
     resolved_key = (
         api_key
-        or kwargs.get("gemini_key")
-        or kwargs.get("openai_key")
         or file_cfg.get("api_key")
         or os.getenv("API_KEY")
-        or os.getenv("GOOGLE_GENERATIVE_AI_API_KEY")
-        or os.getenv("GEMINI_API_KEY")
-        or os.getenv("OPENAI_API_KEY")
     )
 
     resolved_model = (
         model
-        or kwargs.get("gemini_model")
-        or kwargs.get("openai_model")
         or file_cfg.get("model")
         or os.getenv("MODEL")
-        or os.getenv("GEMINI_MODEL")
-        or os.getenv("OPENAI_MODEL")
         or "gemini-3.1-flash-lite"
-    )
-
-    resolved_base_url = (
-        base_url
-        or file_cfg.get("base_url")
-        or os.getenv("BASE_URL")
-        or os.getenv("OPENAI_BASE_URL")
     )
 
     # 7. Exploit checks
@@ -175,7 +158,6 @@ def build_scan_config(
         wordlist_path=wordlist_f,
         api_key=resolved_key,
         model=resolved_model,
-        base_url=resolved_base_url,
         verbose=verbose or file_cfg.get("verbose", False),
         run_exploit_checks=exploit_flag,
     )

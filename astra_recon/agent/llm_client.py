@@ -56,7 +56,7 @@ class HeuristicLLMClient(BaseLLMClient):
     """
     Built-in Deterministic Cybersecurity Reasoning Engine.
     Provides reliable, zero-dependency autonomous agent logic matching the
-    assignment specification when no OpenAI API key is configured.
+    assignment specification when no API key is configured.
     """
 
     @property

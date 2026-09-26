@@ -74,7 +74,6 @@ class ScanConfig(BaseModel):
     wordlist_path: Optional[str] = None
     api_key: Optional[str] = None
     model: str = "gemini-3.1-flash-lite"
-    base_url: Optional[str] = None
     verbose: bool = False
     run_exploit_checks: bool = True
 
