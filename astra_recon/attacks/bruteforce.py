@@ -1,5 +1,4 @@
 import time
-import re
 from typing import List, Optional, Tuple
 from astra_recon.models import DiscoveredUser, BruteforceResult
 from astra_recon.attacks.wordlists import load_wordlist

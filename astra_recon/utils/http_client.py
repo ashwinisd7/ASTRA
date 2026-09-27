@@ -47,7 +47,7 @@ class HttpResponse:
 
 
 class HttpClient:
-    """Resilient HTTP client with retry logic, timeouts, and error handling."""
+    """Resilient HTTP client with timeouts and error handling."""
 
     def __init__(
         self,
@@ -135,7 +135,11 @@ class HttpClient:
             )
         except requests.exceptions.Timeout:
             return HttpResponse(error=f"Timeout after {req_timeout}s posting to {url}")
+        except requests.exceptions.SSLError as e:
+            return HttpResponse(error=f"SSL certificate validation error: {e}")
         except requests.exceptions.ConnectionError as e:
-            return HttpResponse(error=f"Connection error: {e}")
+            return HttpResponse(error=f"Connection refused / Network unreachable: {e}")
+        except requests.exceptions.TooManyRedirects:
+            return HttpResponse(error="Exceeded maximum redirect loop threshold")
         except Exception as e:
             return HttpResponse(error=f"POST error: {e}")
