@@ -1,7 +1,7 @@
 # Python AI-Driven WordPress User Enumeration & Recon Tool
 
 [![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-19%20passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-23%20passed-brightgreen.svg)]()
 
 An autonomous AI-driven reconnaissance and vulnerability detection tool engineered to map WordPress attack surfaces, dynamically discover user accounts across 6 enumeration vectors, perform targeted administrative credential verification, and synthesize actionable executive reports.
 
@@ -38,6 +38,11 @@ WordPress instances frequently disable one vector while leaving others exposed. 
 ### Resilient Dual-Engine AI Architecture
 * **Cloud AI Engine:** Uses Google Gemini (`gemini-3.1-flash-lite`) via native REST APIs with enforced JSON mode (`responseMimeType: application/json`) for structured planning, login error disambiguation, and executive report synthesis.
 * **Offline Deterministic Fallback:** If no API key is configured, or if rate limits / network errors occur, the agent seamlessly falls back to a built-in heuristic engine without interrupting the scan.
+
+### Resilient HTTP Client & Rate Limit Handling
+Probing web endpoints and brute-forcing credentials requires robust network error handling:
+* **Automated 429 Retry-After Handling:** When servers respond with HTTP 429 (Too Many Requests), the client automatically parses the `Retry-After` header—supporting both integer seconds and RFC 7231 / RFC 9110 HTTP-dates—and pauses execution before retrying.
+* **Safety Bounding:** Wait times are bounded by `max_retry_after` (default 60s) with fallback defaults to ensure the tool never stalls indefinitely on misconfigured or adversarial responses.
 
 ### Targeted Administrative Credential Verification
 Reconnaissance does not stop at username discovery. The orchestrator identifies high-privilege administrative accounts (`admin`, `administrator`, `root`, or `user_id=1`) and conducts a rate-limited password audit against common default WordPress credentials or a custom wordlist.
@@ -77,9 +82,9 @@ python_agent/
 │   ├── scanners/
 │   │   └── exploit_detector.py # Version, XML-RPC & sensitive file scanner
 │   └── utils/
-│       ├── http_client.py      # Resilient HTTP client with timeouts
+│       ├── http_client.py      # Resilient HTTP client with timeouts & 429 Retry-After
 │       └── console.py          # Rich terminal formatter & table generator
-├── tests/                      # 19 automated unit and integration tests
+├── tests/                      # 23 automated unit and integration tests
 ├── reports/                    # Auto-generated scan reports (JSON + Markdown)
 ├── requirements.txt            # Python dependencies
 ├── setup.py                    # Package installer (astra-wp-recon command)
@@ -266,7 +271,7 @@ A dedicated mock WordPress server is bundled with the project to safely test the
    python -m astra_recon.cli -u http://localhost:8081 --no-bruteforce
    ```
 
-### Step 3: Running the Automated Test Suite (19 Tests)
+### Step 3: Running the Automated Test Suite (23 Tests)
 The tool is comprehensively verified using an automated `unittest` test suite covering unit functionality, edge cases, fault tolerance, and full end-to-end integration:
 
 ```powershell
@@ -296,6 +301,10 @@ python -m unittest discover -s tests -v
 | **Exploit Detector**<br>[`test_exploit_detector.py`](tests/test_exploit_detector.py) | `test_version_disclosure_readme` | **Version Leak Detection:** Verifies detection of exposed WordPress core versions through static files like `readme.html` or generator headers. |
 | | `test_xmlrpc_enabled` | **XML-RPC Attack Surface:** Verifies detection of active `/xmlrpc.php` endpoints (which can enable brute-force amplification and DDoS). |
 | | `test_sensitive_files` | **Exposed Sensitive Files:** Verifies detection of sensitive logs/backups (e.g., `debug.log`, `wp-config.php.bak`) and sets appropriate severity ratings (CRITICAL). |
+| **HTTP Client & Resilience**<br>[`test_http_client.py`](tests/test_http_client.py) | `test_retry_after_seconds_on_429` | **429 Rate-Limit Handling:** Verifies parsing of integer `Retry-After` seconds from HTTP 429 responses, pausing execution, and retrying successfully. |
+| | `test_retry_after_default_fallback` | **Fallback Delay:** Verifies that when a 429 response omits the `Retry-After` header, the client safely falls back to `default_retry_delay`. |
+| | `test_retry_after_capped_at_max` | **Duration Bounding:** Verifies that excessively large `Retry-After` values are safely clamped to `max_retry_after` (default 60s) to prevent thread starvation. |
+| | `test_retry_after_exhaustion` | **Retry Exhaustion:** Verifies that after exceeding `max_retries`, the 429 status code is returned gracefully rather than raising unhandled exceptions. |
 | **End-to-End**<br>[`test_e2e.py`](tests/test_e2e.py) | `test_full_recon_cycle` | **Full Lifecycle Integration:** Spins up a live mock WordPress server on an ephemeral port in a background thread, executes the complete autonomous ReAct agent loop (multi-vector discovery, credential brute-forcing, and vulnerability detection), and validates that the output matches the required JSON specification. |
 
 ---
@@ -304,7 +313,7 @@ python -m unittest discover -s tests -v
 
 | Design Area | Limitation / Trade-off | Rationale & Mitigation |
 |---|---|---|
-| **Rate Limiting & WAFs** | Aggressive probing can trigger Cloudflare, Wordfence, or Fail2ban IP bans. | A default inter-request delay (`bruteforce_delay: 0.2s`) and request timeouts (`timeout: 10s`) are enforced. For stealth testing, delay and wordlist length can be tuned via CLI flags. |
+| **Rate Limiting & WAFs** | Aggressive probing can trigger Cloudflare, Wordfence, or Fail2ban IP bans. | A default inter-request delay (`bruteforce_delay: 0.2s`), request timeouts (`timeout: 10s`), and automated HTTP 429 `Retry-After` backoff with safety duration bounding (`max_retry_after: 60s`) are enforced. For stealth testing, delay and wordlist length can be tuned via CLI flags. |
 | **LLM Latency vs. Heuristics** | Cloud LLM network round-trips add ~1-2 seconds per reasoning step. | Native JSON mode (`responseMimeType: application/json`) ensures deterministic schema compliance. When offline or during quota limits, the zero-latency Heuristic engine takes over instantly. |
 | **Sequential vs. Concurrent Probing** | Techniques are executed sequentially rather than simultaneously. | Sequential execution maintains a predictable ReAct agent trace, avoids overwhelming the target server, and allows observations from vector $N$ to inform vector $N+1$. |
 | **Brute-Force Safeguards** | Default brute-force attempts are intentionally capped at 15 passwords per admin. | Real-world penetration testing prioritizes low-volume, high-probability passwords to avoid account lockouts or alarm generation. Can be overridden via `--max-bruteforce`. |
